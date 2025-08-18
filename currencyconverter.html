@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Currency Converter</title>
+ <style>
+* {
+  box-sizing: border-box;
+  font-family: 'Andale Mono', monospace;
+}
+
+body {
+  background: #adc78d;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+background-image:  url("https://media.istockphoto.com/id/946032350/photo/background-from-collection-of-all-world-money-banknotes.jpg?s=612x612&w=0&k=20&c=vGhRXV1wvk3uiIJFBhfYyETxGiHBVNq9ZzzlJYaAh0A=");
+}
+
+.container {
+  background: #fff;
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 10px 10px 5px dimgrey;
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 20px;
+  color: #102645;
+}
+
+.converter {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.input-group input {
+  padding: 10px;
+  font-size: 16px;
+  width: 100%;
+}
+
+.dropdowns {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+select {
+  padding: 10px;
+  font-size: 16px;
+  width: 45%;
+}
+
+button {
+  padding: 12px;
+  background-color: #1cb889;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: 0.3s;
+}
+
+button:hover {
+  background-color:#2c705c;
+}
+
+#result {
+  font-size: 18px;
+  font-weight: bold;
+  color: #96670f;
+}
+
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>Currency Converter</h1>
+    <div class="converter">
+      <div class="input-group">
+        <input type="number" id="amount" placeholder="Enter amount" value="1">
+    </div>
+  <div class="dropdowns">
+<select id="from-currency"></select>
+ <span>→</span>
+  <select id="to-currency"></select>
+      </div>
+      <button id="convert">Convert</button>
+      <div id="result"></div>
+    </div>
+  </div>
+  <script>const fromCurrency = document.getElementById('from-currency');
+const toCurrency = document.getElementById('to-currency');
+const convertBtn = document.getElementById('convert');
+const amountInput = document.getElementById('amount');
+const resultDiv = document.getElementById('result');
+
+const apiKey = 'https://open.er-api.com/v6/latest/USD';
+
+let rates = {};
+
+async function getRates() {
+  try {
+    const res = await fetch(apiKey);
+    const data = await res.json();
+    rates = data.rates;
+    populateCurrencyOptions(rates);
+  } catch (error) {
+    resultDiv.textContent = 'Failed to load exchange rates.';
+}}
+
+function populateCurrencyOptions(rateData) {
+  const currencies = Object.keys(rateData);
+  currencies.forEach(currency => {
+    const option1 = document.createElement('option');
+    option1.value = currency;
+    option1.textContent = currency;
+
+    const option2 = option1.cloneNode(true);
+
+    fromCurrency.appendChild(option1);
+    toCurrency.appendChild(option2);
+  });
+
+  fromCurrency.value = 'USD';
+  toCurrency.value = 'EUR';
+}
+
+convertBtn.addEventListener('click', () => {
+  const amount = parseFloat(amountInput.value);
+  const from = fromCurrency.value;
+  const to = toCurrency.value;
+
+  if (!amount || amount <= 0) {
+    resultDiv.textContent = 'Please enter a valid amount.';
+    return;
+  }
+
+  const rate = rates[to] / rates[from];
+  const converted = (amount * rate).toFixed(2);
+  resultDiv.textContent = `${amount} ${from} = ${converted} ${to}`;
+});
+
+getRates();
+</script>
+</body>
+</html>
